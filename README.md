@@ -16,7 +16,7 @@ npx hardhat ignition deploy ignition\modules\deploy.js --network localhost
 ```shell
 node server.js
 ```
-4- to see the frentend use vscode go live plugin to run contract.html 
+4- to see the frontend use vscode go live plugin to run contract.html 
 or run python3 server on any desried port 
 ```shell 
 python3 -m http.server 8080
