@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contract Viewer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+      gap: 40px;
+    }
+
+    .card {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      max-width: 450px;
+      width: 100%;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 1.6rem;
+      color: #333;
+    }
+
+    p {
+      margin: 10px 0;
+      font-size: 1rem;
+      color: #555;
+    }
+
+    span {
+      font-weight: bold;
+      color: #111;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    pre {
+      background-color: #f0f0f0;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      max-height: 700px;
+    }
+
+    .label {
+      color: #777;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .balance-container {
+      margin-bottom: 15px;
+    }
+
+    .solved-badge {
+      display: inline-block;
+      background-color: #28a745;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .zero-balance-message {
+      color: #dc3545;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Left: Contract Source Code -->
+  <div class="card">
+    <h2>Contract Source</h2>
+    <pre id="contractContent">Loading contract source...</pre>
+  </div>
+
+  <!-- Right: Contract Info -->
+  <div class="card">
+    <h2>Contract Info</h2>
+    <p>Contract Address: <span id="contractAddress">Loading...</span></p>
+    
+    <div class="balance-container">
+      <p>Contract Balance: <span id="contractBalance">Loading...</span> ETH</p>
+      <p class="zero-balance-message" id="zeroMessage" style="display:none;"> Funds withdrawn successfully </p>
+      <div id="solvedBadge"></div>
+      <button id="refresh-button">Refresh Balance</button>
+    </div>
+
+    <p class="label">Network: <span id="network">http://127.0.0.1:8545</span></p>
+    <p class="label">Chain ID: <span id="chainId">31337</span></p>
+  </div>
+
+  <script>
+    // Fetch contract balance from server
+    async function refreshBalance() {
+      try {
+        const res = await fetch("http://localhost:3000/balance");
+        const data = await res.json();
+        document.getElementById("contractAddress").textContent = data.address;
+        document.getElementById("contractBalance").textContent = data.balance;
+        document.getElementById("network").textContent = data.network || "http://127.0.0.1:8545";
+        document.getElementById("chainId").textContent = data.chainId || 31337;
+
+        // Check if balance is 0
+        const balanceValue = parseFloat(data.balance);
+        const solvedBadgeDiv = document.getElementById("solvedBadge");
+        const zeroMessage = document.getElementById("zeroMessage");
+
+        if (balanceValue === 0) {
+          zeroMessage.style.display = "block";
+          solvedBadgeDiv.innerHTML = '<div class="solved-badge">✓ Challenge Solved!</div>';
+        } else {
+          zeroMessage.style.display = "none";
+          solvedBadgeDiv.innerHTML = '';
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.getElementById("refresh-button").addEventListener("click", refreshBalance);
+    refreshBalance(); // Load on page load
+
+    // Fetch Solidity source code
+    fetch('/contracts/contract/contract.sol')
+      .then(response => {
+        if (!response.ok) throw new Error('Cannot fetch contract file');
+        return response.text();
+      })
+      .then(text => {
+        document.getElementById('contractContent').textContent = text;
+      })
+      .catch(err => {
+        document.getElementById('contractContent').textContent = 'Error loading contract: ' + err.message;
+      });
+  </script>
+</body>
+</html>
