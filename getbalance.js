@@ -14,7 +14,7 @@ async function get_balance() {
     data = JSON.parse(raw);
     //console.log("Deployed addresses:", JSON.stringify(data, null, 2)); // Debug: see all addresses
   } catch (err) {
-    //console.error("Could not read deployed_addresses.json:", err.message);
+    console.error("Could not read deployed_addresses.json:", err.message);
     process.exit(1);
   }
 

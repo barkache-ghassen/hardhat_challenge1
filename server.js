@@ -1,10 +1,14 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const get_balance = require("./getbalance");
 
 const app = express();
 app.use(cors());
 
+app.use(express.static(path.join(__dirname)));
+
+app.use('/contracts', express.static(path.join(__dirname, 'contracts')));
 app.get("/balance", async (req, res) => {
     try {
         const data = await get_balance();

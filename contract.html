@@ -150,7 +150,7 @@
     refreshBalance(); // Load on page load
 
     // Fetch Solidity source code
-    fetch('/contracts/contract/contract.sol')
+    fetch('http://localhost:3000/contracts/contract/contract.sol')
       .then(response => {
         if (!response.ok) throw new Error('Cannot fetch contract file');
         return response.text();
